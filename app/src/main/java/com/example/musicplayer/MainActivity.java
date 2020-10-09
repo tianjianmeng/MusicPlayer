@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.*;
-import com.example.musicplayer.MusicListActivity;
 
 import java.util.*;
 

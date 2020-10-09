@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -19,12 +21,14 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
 public class MusicListActivity extends AppCompatActivity {
-    int position2=0;
+    int position2=0;//标记歌曲位置
     ListView listView;
     Button Playing;
     ImageView imageViewSelected;
@@ -36,7 +40,7 @@ public class MusicListActivity extends AppCompatActivity {
     private Button buttonLast;
     private Button buttonNext;
     static List<Song> songList;
-
+SongAdapter sa ;
     public MusicListActivity() {
     }
 
@@ -51,7 +55,8 @@ public class MusicListActivity extends AppCompatActivity {
         songList = MusicUtils.getAllMusics(this);
         Log.i(TAG, "onCreate: " + songList.size());
         Log.i(TAG, "onCreate: " + songList);
-        listView.setAdapter(new SongAdapter(this, R.layout.music_list_item, songList));
+        sa = new SongAdapter(this, R.layout.music_list_item, songList);
+        listView.setAdapter(sa);
         initSelectedSong();
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -69,8 +74,20 @@ public class MusicListActivity extends AppCompatActivity {
                         jumpMain();
                     }
                 }
+
             }
         });
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                //Toast.makeText(MusicListActivity.this,"LongClick",Toast.LENGTH_SHORT).show();
+                    Log.v(TAG, "delete");
+                    Song song = (Song) parent.getItemAtPosition(position);
+                    DeleteDialog(song);
+
+                return true;
+            }
+        });
+
         relativeLayoutEndItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -147,7 +164,22 @@ public class MusicListActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
     }
+    private void DeleteDialog(final Song songId) { //删除歌曲
+        Log.v(TAG, "delete");
+        new AlertDialog.Builder(this).setTitle("删除歌曲")
+                .setMessage("是否真的删除歌曲?")
+                .setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        songList.remove(songId);
+                        sa.notifyDataSetChanged();
+                        //差刷新
+                    }
+                }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
 
+            }
+        }).create().show();
+    }
     private static Song selectSong;
 
     public void initSelectedSong(){
